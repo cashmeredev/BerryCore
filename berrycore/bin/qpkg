@@ -360,6 +360,11 @@ cmd_install() {
         chmod +x "$NATIVE_TOOLS/bin"/* 2>/dev/null
     fi
     
+    # Set executable permissions on Python binaries (if this is Python)
+    if [ "$PORT_NAME" = "python3" ] && [ -d "$NATIVE_TOOLS/lib/python3.11/tools/python3" ]; then
+        chmod +x "$NATIVE_TOOLS/lib/python3.11/tools/python3"/* 2>/dev/null
+    fi
+    
     # Clean up
     rm -rf "$TEMP_DIR"
     
