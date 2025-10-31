@@ -92,6 +92,12 @@ quickjs_web_console_es5|js|QuickJS web console (ES5)
 
 # Programming Languages
 pforth|lang|Portable ANS Forth interpreter (v28)
+python3|lang|Python 3.11.10 interpreter (qpkg install python3)
+python3.11|lang|Python 3.11.10 interpreter (same as python3)
+pip|lang|Python package installer (use: python3 -m pip)
+2to3|lang|Python 2 to 3 code converter
+idle3|lang|Python IDE
+pydoc3|lang|Python documentation tool
 
 # Security & Cryptography
 openssl|security|OpenSSL 3.3.2 - Modern crypto libraries with libssl.so.3

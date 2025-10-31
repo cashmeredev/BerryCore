@@ -1,0 +1,16 @@
+#!/bin/bash
+# Python 3.11 wrapper script for BerryCore
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
+PYTHON_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Set PYTHONHOME to the root of the Python installation
+export PYTHONHOME="$PYTHON_ROOT"
+
+# Add Python lib directory to LD_LIBRARY_PATH for any shared libraries
+export LD_LIBRARY_PATH="$PYTHON_ROOT/lib:$LD_LIBRARY_PATH"
+
+# Execute the actual Python binary
+exec "$SCRIPT_DIR/python3.bin" "$@"
+
