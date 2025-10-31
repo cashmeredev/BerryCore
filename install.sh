@@ -152,29 +152,23 @@ else
 fi
 echo ""
 
-if [ ! -e "$HOME/.profile" ]; then
-  # Update the path in sample_profile before copying
-  sed "s|/accounts/1000/shared/misc/berrycore|$PWD|g" sample_profile > "$HOME/.profile"
-  
-  # Add MOTD configuration
-  echo "" >> "$HOME/.profile"
-  echo "# BerryCore Message of the Day" >> "$HOME/.profile"
-  echo "export BERRYCORE_MOTD_URL=\"https://raw.githubusercontent.com/sw7ft/berrycore/main/motd.txt\"" >> "$HOME/.profile"
-  echo "export BERRYCORE_MOTD_ENABLED=1" >> "$HOME/.profile"
-  
-  echo "Created $HOME/.profile"
-else
-  echo "You already have a .profile."
-  echo "You can set up your paths by sourcing $PWD/env.sh"
-  echo "See $PWD/sample_profile for a snippet that does this"
-  echo ""
-  echo "To manually add BerryCore to your profile, add this line:"
-  echo "  [ -e \"$PWD/env.sh\" ] && . \"$PWD/env.sh\""
-  echo ""
-  echo "To enable MOTD, add these lines:"
-  echo "  export BERRYCORE_MOTD_URL=\"https://raw.githubusercontent.com/sw7ft/berrycore/main/motd.txt\""
-  echo "  export BERRYCORE_MOTD_ENABLED=1"
+# Backup existing .profile if it exists
+if [ -e "$HOME/.profile" ]; then
+  BACKUP_NAME="$HOME/.profile.backup.$(date +%Y%m%d_%H%M%S)"
+  cp "$HOME/.profile" "$BACKUP_NAME"
+  echo "Backed up existing .profile to: $(basename $BACKUP_NAME)"
 fi
+
+# Always create fresh .profile to prevent errors from old configs
+sed "s|/accounts/1000/shared/misc/berrycore|$PWD|g" sample_profile > "$HOME/.profile"
+
+# Add MOTD configuration
+echo "" >> "$HOME/.profile"
+echo "# BerryCore Message of the Day" >> "$HOME/.profile"
+echo "export BERRYCORE_MOTD_URL=\"https://raw.githubusercontent.com/sw7ft/berrycore/main/motd.txt\"" >> "$HOME/.profile"
+echo "export BERRYCORE_MOTD_ENABLED=1" >> "$HOME/.profile"
+
+echo "Created fresh $HOME/.profile"
 
 # Update env.sh with actual installation path
 sed -i.bak "s|NATIVE_TOOLS=\"/accounts/1000/shared/misc/berrycore\"|NATIVE_TOOLS=\"$PWD\"|g" env.sh
