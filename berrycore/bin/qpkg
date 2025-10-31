@@ -320,8 +320,8 @@ cmd_install() {
         exit 0
     fi
     
-    # Create temp directory
-    TEMP_DIR="/tmp/qpkg-$PORT_NAME-$$"
+    # Create temp directory in NATIVE_TOOLS (QNX /tmp may not be writable)
+    TEMP_DIR="$NATIVE_TOOLS/.tmp/qpkg-$PORT_NAME-$$"
     mkdir -p "$TEMP_DIR"
     
     # Download port
