@@ -93,11 +93,57 @@ if [ "${BERRYCORE_MOTD_ENABLED:-1}" = "1" ]; then
     fi
 fi
 
-# Quick navigation aliases for common BB10 directories
-alias misc='cd /accounts/1000/shared/misc'
-alias docs='cd /accounts/1000/shared/documents'
-alias downloads='cd /accounts/1000/shared/downloads'
-alias sdcard='cd /accounts/1000/removable/sdcard'
-alias bc='cd $NATIVE_TOOLS'
+# Quick navigation shortcuts for common BB10 directories
+# Smart functions: cd to directory OR copy files from it
+
+misc() {
+    if [ $# -eq 0 ]; then
+        cd /accounts/1000/shared/misc
+    elif [ $# -eq 1 ]; then
+        cp "/accounts/1000/shared/misc/$1" .
+    else
+        cp "/accounts/1000/shared/misc/$1" "$2"
+    fi
+}
+
+docs() {
+    if [ $# -eq 0 ]; then
+        cd /accounts/1000/shared/documents
+    elif [ $# -eq 1 ]; then
+        cp "/accounts/1000/shared/documents/$1" .
+    else
+        cp "/accounts/1000/shared/documents/$1" "$2"
+    fi
+}
+
+downloads() {
+    if [ $# -eq 0 ]; then
+        cd /accounts/1000/shared/downloads
+    elif [ $# -eq 1 ]; then
+        cp "/accounts/1000/shared/downloads/$1" .
+    else
+        cp "/accounts/1000/shared/downloads/$1" "$2"
+    fi
+}
+
+sdcard() {
+    if [ $# -eq 0 ]; then
+        cd /accounts/1000/removable/sdcard
+    elif [ $# -eq 1 ]; then
+        cp "/accounts/1000/removable/sdcard/$1" .
+    else
+        cp "/accounts/1000/removable/sdcard/$1" "$2"
+    fi
+}
+
+bc() {
+    if [ $# -eq 0 ]; then
+        cd $NATIVE_TOOLS
+    elif [ $# -eq 1 ]; then
+        cp "$NATIVE_TOOLS/$1" .
+    else
+        cp "$NATIVE_TOOLS/$1" "$2"
+    fi
+}
 
 echo ""
