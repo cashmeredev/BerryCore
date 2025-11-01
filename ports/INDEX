@@ -14,6 +14,6 @@
 apache-php|web|2.4.58|43M|Apache HTTP Server 2.4.58 + PHP 7.4.33 web stack
 gcc-arm|dev|9.3.0|33M|GCC 9.3.0 ARM-native compiler for on-device compilation
 hydra|net|9.5|165K|Fast network logon cracker - password auditing tool
-python3|lang|3.11.10|15M|Python 3.11 interpreter with pip and full standard library
+python3|lang|3.11.10|25M|Python 3.11 interpreter with pip and full standard library
 tmux|sys|3.3a|2.5M|Terminal multiplexer with session persistence and split panes
 
