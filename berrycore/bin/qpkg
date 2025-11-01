@@ -64,7 +64,7 @@ check_for_updates() {
     print_info "Checking for updates..."
     
     # Fetch latest release info
-    RELEASE_JSON=$(curl -s -m 10 "$GITHUB_API/releases/latest" 2>/dev/null)
+    RELEASE_JSON=$(curl -s -k -m 10 "$GITHUB_API/releases/latest" 2>/dev/null)
     
     if [ -z "$RELEASE_JSON" ]; then
         print_error "Failed to connect to GitHub. Check your internet connection."
@@ -112,7 +112,7 @@ download_file() {
     
     # Try curl with progress bar
     if command -v curl >/dev/null 2>&1; then
-        curl -L -o "$OUTPUT" "$URL" 2>&1 | \
+        curl -k -L -o "$OUTPUT" "$URL" 2>&1 | \
         while read line; do
             echo "$line" | grep -o '[0-9]*\.[0-9]' | tail -1 | \
             while read pct; do
@@ -168,7 +168,7 @@ cmd_update() {
     echo ""
     
     # Fetch release notes
-    RELEASE_BODY=$(curl -s "$GITHUB_API/releases/latest" | grep -A 50 '"body"' | sed '1d' | sed 's/^[[:space:]]*"//' | head -20)
+    RELEASE_BODY=$(curl -s -k "$GITHUB_API/releases/latest" | grep -A 50 '"body"' | sed '1d' | sed 's/^[[:space:]]*"//' | head -20)
     if [ -n "$RELEASE_BODY" ]; then
         echo "${BOLD}What's new:${NC}"
         echo "$RELEASE_BODY" | head -10
@@ -236,7 +236,8 @@ cmd_ports() {
     INDEX_URL="$GITHUB_RAW/ports/INDEX"
     
     # Try with increased timeout and show errors
-    INDEX_CONTENT=$(curl -s -L -m 15 "$INDEX_URL" 2>&1)
+    # Use -k to bypass SSL cert issues on BB10/QNX with missing certs
+    INDEX_CONTENT=$(curl -s -k -L -m 15 "$INDEX_URL" 2>&1)
     CURL_EXIT=$?
     
     if [ $CURL_EXIT -ne 0 ] || [ -z "$INDEX_CONTENT" ]; then
@@ -282,7 +283,8 @@ cmd_install() {
     # Fetch INDEX to find the port
     print_info "Searching for port: $PORT_NAME"
     INDEX_URL="$GITHUB_RAW/ports/INDEX"
-    INDEX_CONTENT=$(curl -s -L -m 15 "$INDEX_URL" 2>&1)
+    # Use -k to bypass SSL cert issues on BB10/QNX with missing certs
+    INDEX_CONTENT=$(curl -s -k -L -m 15 "$INDEX_URL" 2>&1)
     CURL_EXIT=$?
     
     if [ $CURL_EXIT -ne 0 ] || [ -z "$INDEX_CONTENT" ]; then
@@ -341,7 +343,7 @@ cmd_install() {
     echo ""
     print_info "Downloading $FILENAME..."
     
-    if ! curl -L -o "$TEMP_DIR/$FILENAME" "$DOWNLOAD_URL" 2>&1 | grep -o '[0-9]*\.[0-9]' | tail -1 | while read pct; do printf "\r  Progress: %.0f%%" "$pct"; done; then
+    if ! curl -k -L -o "$TEMP_DIR/$FILENAME" "$DOWNLOAD_URL" 2>&1 | grep -o '[0-9]*\.[0-9]' | tail -1 | while read pct; do printf "\r  Progress: %.0f%%" "$pct"; done; then
         printf "\r  Progress: 100%%\n"
         print_error "Download failed"
         rm -rf "$TEMP_DIR"
