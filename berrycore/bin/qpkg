@@ -234,13 +234,21 @@ cmd_ports() {
     
     # Fetch INDEX file from GitHub
     INDEX_URL="$GITHUB_RAW/ports/INDEX"
-    INDEX_CONTENT=$(curl -s -m 5 "$INDEX_URL" 2>/dev/null)
     
-    if [ -z "$INDEX_CONTENT" ]; then
-        print_error "Failed to fetch ports index from GitHub"
+    # Try with increased timeout and show errors
+    INDEX_CONTENT=$(curl -s -L -m 15 "$INDEX_URL" 2>&1)
+    CURL_EXIT=$?
+    
+    if [ $CURL_EXIT -ne 0 ] || [ -z "$INDEX_CONTENT" ]; then
+        print_error "Failed to fetch ports index from GitHub (curl exit code: $CURL_EXIT)"
         echo ""
-        echo "Check your internet connection or visit:"
-        echo "  https://github.com/$GITHUB_REPO/tree/main/ports"
+        echo "Error output:"
+        echo "$INDEX_CONTENT" | head -3
+        echo ""
+        echo "Try manually:"
+        echo "  curl -v '$INDEX_URL'"
+        echo ""
+        echo "Or visit: https://github.com/$GITHUB_REPO/tree/main/ports"
         exit 1
     fi
     
@@ -274,10 +282,15 @@ cmd_install() {
     # Fetch INDEX to find the port
     print_info "Searching for port: $PORT_NAME"
     INDEX_URL="$GITHUB_RAW/ports/INDEX"
-    INDEX_CONTENT=$(curl -s -m 5 "$INDEX_URL" 2>/dev/null)
+    INDEX_CONTENT=$(curl -s -L -m 15 "$INDEX_URL" 2>&1)
+    CURL_EXIT=$?
     
-    if [ -z "$INDEX_CONTENT" ]; then
-        print_error "Failed to fetch ports index from GitHub"
+    if [ $CURL_EXIT -ne 0 ] || [ -z "$INDEX_CONTENT" ]; then
+        print_error "Failed to fetch ports index from GitHub (curl exit code: $CURL_EXIT)"
+        echo ""
+        echo "Error: $INDEX_CONTENT" | head -3
+        echo ""
+        echo "Try: curl -v '$INDEX_URL'"
         exit 1
     fi
     
