@@ -82,20 +82,39 @@ check_for_updates() {
     echo "$LATEST_VERSION"
 }
 
-# Compare versions (simple string comparison)
+# Compare versions (handles x.y and x.y.z)
 version_greater() {
     # $1 = new version, $2 = old version
     # Returns 0 if $1 > $2
     
-    # Simple comparison - works for x.y format
+    # Handle both x.y and x.y.z formats
     NEW_MAJOR=$(echo "$1" | cut -d. -f1)
     NEW_MINOR=$(echo "$1" | cut -d. -f2)
+    NEW_PATCH=$(echo "$1" | cut -d. -f3)
     OLD_MAJOR=$(echo "$2" | cut -d. -f1)
     OLD_MINOR=$(echo "$2" | cut -d. -f2)
+    OLD_PATCH=$(echo "$2" | cut -d. -f3)
     
+    # Default to 0 if patch version doesn't exist
+    [ -z "$NEW_PATCH" ] && NEW_PATCH=0
+    [ -z "$OLD_PATCH" ] && OLD_PATCH=0
+    
+    # Compare major version
     if [ "$NEW_MAJOR" -gt "$OLD_MAJOR" ]; then
         return 0
-    elif [ "$NEW_MAJOR" -eq "$OLD_MAJOR" ] && [ "$NEW_MINOR" -gt "$OLD_MINOR" ]; then
+    elif [ "$NEW_MAJOR" -lt "$OLD_MAJOR" ]; then
+        return 1
+    fi
+    
+    # Major same, compare minor
+    if [ "$NEW_MINOR" -gt "$OLD_MINOR" ]; then
+        return 0
+    elif [ "$NEW_MINOR" -lt "$OLD_MINOR" ]; then
+        return 1
+    fi
+    
+    # Major and minor same, compare patch
+    if [ "$NEW_PATCH" -gt "$OLD_PATCH" ]; then
         return 0
     else
         return 1
@@ -191,18 +210,30 @@ cmd_update() {
     BERRYCORE_URL="https://github.com/$GITHUB_REPO/releases/download/v${LATEST_VERSION}/berrycore.zip"
     INSTALL_URL="https://github.com/$GITHUB_REPO/releases/download/v${LATEST_VERSION}/install.sh"
     
-    # Download files
-    cd "$DOWNLOAD_DIR" || exit 1
+    # Create download directory and temp dir
+    mkdir -p "$DOWNLOAD_DIR" 2>/dev/null
+    UPDATE_DIR="$DOWNLOAD_DIR/.berrycore-update-$$"
+    mkdir -p "$UPDATE_DIR"
+    
+    # Save current directory to return later
+    ORIG_DIR="$PWD"
+    
+    # Download files to temp directory
+    cd "$UPDATE_DIR" || exit 1
     
     download_file "$BERRYCORE_URL" "berrycore.zip"
     if [ $? -ne 0 ]; then
         print_error "Failed to download berrycore.zip"
+        cd "$ORIG_DIR"
+        rm -rf "$UPDATE_DIR"
         exit 1
     fi
     
     download_file "$INSTALL_URL" "install.sh"
     if [ $? -ne 0 ]; then
         print_error "Failed to download install.sh"
+        cd "$ORIG_DIR"
+        rm -rf "$UPDATE_DIR"
         exit 1
     fi
     
@@ -210,15 +241,29 @@ cmd_update() {
     
     echo ""
     print_header "Installing BerryCore v${LATEST_VERSION}"
+    echo ""
+    print_info "This may take a minute, please wait..."
+    echo ""
     
-    # Run installer
-    sh ./install.sh
+    # Run installer with auto-confirm (pipe empty lines for prompts)
+    # The install.sh will:
+    # 1. Use default directory (berrycore)
+    # 2. Use upgrade mode (choice 1) 
+    # 3. Auto-continue
+    printf "\n\n1\n" | sh ./install.sh
+    INSTALL_EXIT=$?
     
-    if [ $? -eq 0 ]; then
+    # Clean up
+    cd "$ORIG_DIR"
+    rm -rf "$UPDATE_DIR"
+    
+    if [ $INSTALL_EXIT -eq 0 ]; then
         echo ""
         print_success "BerryCore updated to v${LATEST_VERSION}!"
         echo ""
-        echo "Restart your shell or run: source $NATIVE_TOOLS/env.sh"
+        echo "Changes will take effect in new shells."
+        echo "To use now, run: ${GREEN}source $NATIVE_TOOLS/env.sh${NC}"
+        echo ""
     else
         print_error "Installation failed. Check errors above."
         exit 1
