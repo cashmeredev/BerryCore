@@ -365,14 +365,19 @@ cmd_install() {
         chmod +x "$NATIVE_TOOLS/lib/python3.11/tools/python3"/* 2>/dev/null
     fi
     
-    # Clean up
-    rm -rf "$TEMP_DIR"
-    
     echo ""
     print_success "Port '$PORT_NAME' installed successfully!"
     echo ""
-    echo "Binaries installed:"
-    unzip -l "$TEMP_DIR/$FILENAME" 2>/dev/null | grep "bin/" | awk '{print "  " $NF}' || echo "  Check: ls $NATIVE_TOOLS/bin"
+    
+    # Show installed binaries (before cleanup)
+    if [ -d "$NATIVE_TOOLS/bin" ]; then
+        echo "Binaries installed:"
+        ls -1 "$NATIVE_TOOLS/bin" | tail -10 | sed 's/^/  /'
+    fi
+    
+    # Clean up
+    rm -rf "$TEMP_DIR"
+    
     echo ""
 }
 
