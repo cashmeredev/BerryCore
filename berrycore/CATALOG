@@ -142,4 +142,5 @@ apachectl|web|Apache control - start/stop/restart server
 httpd|web|Apache HTTP daemon binary
 php|web|PHP 7.4.33 CLI/CGI interpreter
 php-cgi|web|PHP CGI for Apache web server
+berrypy|web|BlackBerry app platform manager with web interface (qpkg install berrypy)
 
